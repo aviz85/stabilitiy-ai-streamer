@@ -24,6 +24,7 @@ Before running the server, make sure you have your Stability API key and have se
 
 ```bash
 export STABILITY_API_KEY=your_api_key_here
+```
 
 Next, run the server with the command `python server.py`.
 
