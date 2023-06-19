@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<video autoplay id="video"></video>
+<img id="inputImage" src="" alt="Input Image">
+<canvas id="canvas" style="display:none;"></canvas>
+
+<script>
+let video = document.getElementById('video');
+let inputImage = document.getElementById('inputImage');
+let canvas = document.getElementById('canvas');
+
+if (navigator.mediaDevices.getUserMedia) {
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function (stream) {
+      video.srcObject = stream;
+    })
+    .catch(function (error) {
+      console.log("Something went wrong!");
+    });
+}
+
+function sendImage() {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    let imgDataUrl = canvas.toDataURL('image/png');
+
+    fetch('http://127.0.0.1:5002/save-image', {
+        method: 'POST',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image: imgDataUrl })
+      }).then(res => {
+        if (!res.ok) {
+          console.log('Failed to send image data');
+        }
+      }).catch(error => {
+        console.error('Error:', error);
+      });
+}
+
+function updateInputImage() {
+    inputImage.src = 'http://127.0.0.1:5002/input-image?' + new Date().getTime();
+}
+
+sendImage();
+setInterval(sendImage, 500); // capture and send a frame every 500 ms
+setInterval(updateInputImage, 300); // update the input image every 300 ms
+
+</script>
+
+</body>
+</html>
